@@ -1,8 +1,8 @@
 # PieBW-GL
-MP-lasso chart: Multi-level polar chart for visualizing group lasso analysis of high dimensional data
+MP-lasso chart: Multi-level polar chart for __visualizing Group lasso analysis__ of high dimensional data
 
 # Notice
-All source codes were listed in file "PieBW_gglasso.R", "PieBW_SGL.R" for implemeting
+All source codes were listed in file "PieBW_gglasso.R", "PieBW_SGL.R" for implementing
 
 # Reference
 - Yang, Y. and Zou, H. (2015), ``A Fast Unified Algorithm for Computing Group-Lasso Penalized Learning Problems,'' Statistics and Computing. 25(6), 1129-1141.
@@ -35,7 +35,7 @@ y0 <- rbinom(n, 1, pr) # binary response variable
 ```
 # Usage
 In R:
-- Load package for use
+- Load package required
 ```
 library(gglasso)
 library(ggplot2)
