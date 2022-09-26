@@ -47,17 +47,19 @@ library(patchwork)
 ```
 - Import example data
 ```
-example <- read.csv("example.csv")
-X <- example$X
-y <- example$y
-groups <- example$groups
-groups_name <- example$groups_name
+example_data <- read.csv("example_data.csv")
+example_GroupInfo <- read.csv("example_GroupInfo.csv")
+
+X <- example_data[,1:200]
+y <- example_data$y
+groups <- example_GroupInfo$groups
+groups_name <- example_GroupInfo$groups_name
 ```
 - Implements Group lasso (cross-validation)
 ```
 cv_gl <- cv.gglasso(X, y, group=groups, loss="ls", nfolds=3)
 ```
-- Visualizing group lasso analysis
+- Visualizing group lasso
 ```
 source("PieBW_gglasso.R")
 
