@@ -66,6 +66,7 @@ source("PieBW_gglasso.R")
 PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "max")
 PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "mean")
 ```
+(file:///C:/Users/sm068/Desktop/시각화/시각화프로그램/ee.html)
 - Input
   + cv_object : fitted cv.gglasso() object or cvSGL() object
   + group : group name, character or integer.
