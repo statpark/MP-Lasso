@@ -66,7 +66,8 @@ source("PieBW_gglasso.R")
 PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "max")
 PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "mean")
 ```
-![SortType_GroupMaximum](https://user-images.githubusercontent.com/54830606/193395784-618efed7-07e0-4a9f-8ed5-8c2044c5ebc1.png)
+![SortType_GroupMaximum](https://user-images.githubusercontent.com/54830606/193396119-1c58afea-2fd1-4b80-b066-483e4b6d673a.png)
+![diagram](https://user-images.githubusercontent.com/54830606/193396215-95353937-8ca4-4f62-bf3d-27ad7b8d3828.png)
 - Input
   + cv_object : fitted cv.gglasso() object or cvSGL() object
   + group : group name, character or integer.
