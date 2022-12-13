@@ -1,4 +1,4 @@
-PieBW_gglasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.type = "mean", intercept=TRUE) {
+MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.type = "mean", intercept=TRUE) {
   
   ## extracting value ##
   ## extracting value - coefficients and lambda ##
