@@ -1,30 +1,17 @@
-MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type = "min", sort.type = "mean") {
+MP_gLasso <- function(cv_object, group, lambda.type = "min", sort.type = "mean", max.shown = 20, intercept=TRUE) {
   
   ## extracting value ##
   ## extracting value - coefficients and lambda ##
   
-  if (is.null(coef_label)) {
-    coef_name <- paste0("V", 1:length(group))
-  } else {
-    coef_name <- coef_label
-  }
+  ifelse(lambda.type == "min", coef <- coef(cv_object$gglasso.fit, s=cv_object$lambda.min),
+         coef <- coef(cv_object$gglasso.fit, s=cv_object$lambda.1se))
+  ifelse(lambda.type == "min", lambda <- round(cv_object$lambda.min, 4),
+         lambda <- round(cv_object$lambda.1se, 4))
   
-  df <- apply(cv_object$fit$beta, 2, function(x) sum(x != 0))
-  
-  ##negative log likelihood
-  idx_min <- which(cv_object$lldiff == min(cv_object$lldiff))
-  idx_temp <- which((cv_object$lldiff <= min(cv_object$lldiff)+sd(cv_object$lldiff)), 
-                    (cv_object$lldiff >= min(cv_object$lldiff)-sd(cv_object$lldiff)))
-  idx_1se <- which(df == min(df[idx_temp]))[1]
-  
-  
-  ##coefficients
-  ifelse(lambda.type == "min", coef <- cv_object$fit$beta[,idx_min], coef <- cv_object$fit$beta[,idx_1se])
-  
-  
-  ##lambda value##
-  ifelse(lambda.type == "min", lambda <- round(cv_object$lambdas[idx_min], 4), 
-         lambda <- round(cv_object$lambdas[idx_1se], 4))
+  if (intercept) {
+    coef_name <- dimnames(coef)[[1]][-1]
+    coef <- coef[-1]
+  } else {coef_name <- dimnames(coef)[[1]]}
   
   if (mode(group) == "numeric"){
     group <- as.character(group)
@@ -43,13 +30,48 @@ MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type 
   gid <- as.numeric(factor(group_name))
   
   len <- length(gname)
+  
+  if(len == 0){
+    stop('No variable with non-zero coefficient')
+  }
+  if(len> max.shown){ 
+    if(sort.type == 'mean'){
+        avgbeta_abs <- tapply(abs(beta), group_name, mean)  
+        oo <- order(avgbeta_abs, decreasing = TRUE)
+        gname = rownames(avgbeta_abs[oo][1:max.shown])
+        idx2 = group %in% gname
+        beta <- coef[idx2]
+        beta_name <- coef_name[idx2]
+      
+        group_name <- group[idx2]
+        group_size <- as.integer(table(group_name))
+      
+        gname <- unique(group_name)
+        gid <- as.numeric(factor(group_name))
+      
+        len <- length(gname)
+    }else{
+      max.beta_abs <- tapply(abs(beta), group_name, max)  
+      oo <- order(max.beta_abs, decreasing = TRUE)
+      gname = rownames(max.beta_abs[oo][1:max.shown])
+      idx2 = group %in% gname
+      beta <- coef[idx2]
+      beta_name <- coef_name[idx2]
+      
+      group_name <- group[idx2]
+      group_size <- as.integer(table(group_name))
+      
+      gname <- unique(group_name)
+      gid <- as.numeric(factor(group_name))
+      
+      len <- length(gname)
+    }
+  }
+
   if (sort.type == "mean") {
     avgbeta_abs <- tapply(abs(beta), group_name, mean)  
     oo <- order(avgbeta_abs, decreasing = TRUE)
     scale <- tapply(abs(beta), group_name, mean) / tapply(abs(beta), group_name, max)
-    
-    # temp <- rep(1:len, each = as.integer(table(group)))
-    # gid <- temp[idx2]
     
     data <- data.frame(beta=beta, group_name=factor(gid))
     data$sign <- ifelse(data$beta > 0, "beta \nwith positive sign", "beta \nwith negative sign")
@@ -66,7 +88,6 @@ MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type 
       scale_fill_grey(start=1, end=0.5) +
       scale_x_discrete(breaks=factor(unique(gid)), labels=gname) +
       coord_polar()
-    
   } else {
     max.beta_abs <- tapply(abs(beta), group_name, max)  
     oo <- order(max.beta_abs, decreasing = TRUE)
@@ -88,7 +109,6 @@ MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type 
       scale_x_discrete(breaks=factor(unique(gid)), labels=gname) +
       coord_polar()
   }
-
   
   position <- list(length = len)
   for (i in 1:len) {
@@ -142,7 +162,7 @@ MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type 
   p4 <- p3 +
     scale_shape_manual(name = 'sign of beta', values=c(1, 17)) +
     scale_colour_manual(name = 'sign of beta', values = c('black', 'black', 'black')) +
-    labs(title = "Sparse Group Lasso",
+    labs(title = "Group Lasso",
          subtitle = paste0("Lambda : ", lambda, ", Lambda type : ",lambda.type,"\nSort type : ", sort.type),
          x="", y="", fill="Group size") +
     theme(plot.title = element_text(hjust = 0.5,size=13, face="bold"), 
