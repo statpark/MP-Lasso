@@ -1,4 +1,4 @@
-MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.type = "mean", intercept=TRUE) {
+MP_gLasso <- function(cv_object, group, lambda.type = "min", sort.type = "mean", max.shown = 20, intercept=TRUE) {
   
   ## extracting value ##
   ## extracting value - coefficients and lambda ##
@@ -14,7 +14,7 @@ MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.ty
   } else {coef_name <- dimnames(coef)[[1]]}
   
   if (mode(group) == "numeric"){
-   group <- as.character(group)
+    group <- as.character(group)
   }
   
   idx <- (coef != 0)
@@ -23,8 +23,6 @@ MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.ty
   beta <- coef[idx2]
   beta_name <- coef_name[idx2]
   
-   
-  
   group_name <- group[idx2]
   group_size <- as.integer(table(group_name))
   
@@ -32,26 +30,64 @@ MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.ty
   gid <- as.numeric(factor(group_name))
   
   len <- length(gname)
+  
+  if(len == 0){
+    stop('No variable with non-zero coefficient')
+  }
+  if(len> max.shown){ 
+    if(sort.type == 'mean'){
+        avgbeta_abs <- tapply(abs(beta), group_name, mean)  
+        oo <- order(avgbeta_abs, decreasing = TRUE)
+        gname = rownames(avgbeta_abs[oo][1:max.shown])
+        idx2 = group %in% gname
+        beta <- coef[idx2]
+        beta_name <- coef_name[idx2]
+      
+        group_name <- group[idx2]
+        group_size <- as.integer(table(group_name))
+      
+        gname <- unique(group_name)
+        gid <- as.numeric(factor(group_name))
+      
+        len <- length(gname)
+    }else{
+      max.beta_abs <- tapply(abs(beta), group_name, max)  
+      oo <- order(max.beta_abs, decreasing = TRUE)
+      gname = rownames(max.beta_abs[oo][1:max.shown])
+      idx2 = group %in% gname
+      beta <- coef[idx2]
+      beta_name <- coef_name[idx2]
+      
+      group_name <- group[idx2]
+      group_size <- as.integer(table(group_name))
+      
+      gname <- unique(group_name)
+      gid <- as.numeric(factor(group_name))
+      
+      len <- length(gname)
+    }
+  }
+
   if (sort.type == "mean") {
-  avgbeta_abs <- tapply(abs(beta), group_name, mean)  
-  oo <- order(avgbeta_abs, decreasing = TRUE)
-  scale <- tapply(abs(beta), group_name, mean) / tapply(abs(beta), group_name, max)
-  
-  data <- data.frame(beta=beta, group_name=factor(gid))
-  data$sign <- ifelse(data$beta > 0, "beta \nwith positive sign", "beta \nwith negative sign")
-  
-  p2 <- data %>%
-    group_by(group_name) %>%
-    summarise(avg_beta = mean(abs(beta)), gsize=n()) %>%
-    mutate(group_name = fct_reorder(group_name, avg_beta, .desc=TRUE),
-           group_size = fct_reorder(factor(gsize), gsize, .desc=FALSE)) %>%
-    ggplot() +
-    geom_bar(aes(x=group_name, y=avg_beta, fill=group_size), col="black",
-             stat="identity", width = 1) +
-    theme_light() +
-    scale_fill_grey(start=1, end=0.5) +
-    scale_x_discrete(breaks=factor(unique(gid)), labels=gname) +
-    coord_polar()
+    avgbeta_abs <- tapply(abs(beta), group_name, mean)  
+    oo <- order(avgbeta_abs, decreasing = TRUE)
+    scale <- tapply(abs(beta), group_name, mean) / tapply(abs(beta), group_name, max)
+    
+    data <- data.frame(beta=beta, group_name=factor(gid))
+    data$sign <- ifelse(data$beta > 0, "beta \nwith positive sign", "beta \nwith negative sign")
+    
+    p2 <- data %>%
+      group_by(group_name) %>%
+      summarise(avg_beta = mean(abs(beta)), gsize=n()) %>%
+      mutate(group_name = fct_reorder(group_name, avg_beta, .desc=TRUE),
+             group_size = fct_reorder(factor(gsize), gsize, .desc=FALSE)) %>%
+      ggplot() +
+      geom_bar(aes(x=group_name, y=avg_beta, fill=group_size), col="black",
+               stat="identity", width = 1) +
+      theme_light() +
+      scale_fill_grey(start=1, end=0.5) +
+      scale_x_discrete(breaks=factor(unique(gid)), labels=gname) +
+      coord_polar()
   } else {
     max.beta_abs <- tapply(abs(beta), group_name, max)  
     oo <- order(max.beta_abs, decreasing = TRUE)
@@ -107,13 +143,13 @@ MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.ty
   sample_points <- list(length= len)
   for (i in 1:len) {
     sample_points[[i]] <- data.frame(position=position[[i]], beta_scale=beta_scale[[oo[i]]],
-                                        beta_sign=beta_sign[[oo[i]]], index=indexx[[oo[i]]], coef=beta_origin[[oo[i]]],
-                                        name=b_name[[oo[i]]])
+                                     beta_sign=beta_sign[[oo[i]]], index=indexx[[oo[i]]], coef=beta_origin[[oo[i]]],
+                                     name=b_name[[oo[i]]])
   }
   
   for (i in 1:len) {
     sample_points[[i]]$tt <- paste0("Name : ", sample_points[[i]]$name,
-                                       "\nCoefficient : ", round(sample_points[[i]]$coef,4))
+                                    "\nCoefficient : ", round(sample_points[[i]]$coef,4))
   }
   
   p3 <- p2
@@ -136,7 +172,7 @@ MP_gLasso <- function(cv_object=NULL, group = NULL, lambda.type = "min", sort.ty
     scale_y_continuous(labels = NULL)
   
   girafe(code = print(p4), width_svg = 7, height_svg = 6)
-
+  
   
 }
 
