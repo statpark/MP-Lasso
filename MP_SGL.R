@@ -1,4 +1,4 @@
-PieBW_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type = "min", sort.type = "mean") {
+MP_SGL <- function(cv_object=NULL, group = NULL, coef_label = NULL, lambda.type = "min", sort.type = "mean") {
   
   ## extracting value ##
   ## extracting value - coefficients and lambda ##
