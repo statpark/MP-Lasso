@@ -1,8 +1,8 @@
-# PieBW-GL
-MP-lasso chart: Multi-level polar chart for __visualizing Group lasso analysis__ of high dimensional data
+# MP-Lasso
+MP-Lasso chart: Multi-level polar chart for __visualizing Group lasso analysis__ of high dimensional data
 
 # Notice
-All source codes were listed in file "PieBW_gglasso.R", "PieBW_SGL.R" for implementing
+All source codes were listed in file "MP_Lasso.R", "MP_gLasso.R" "MP_SGL.R" for implementing
 
 # Reference
 - Yang, Y. and Zou, H. (2015), ``A Fast Unified Algorithm for Computing Group-Lasso Penalized Learning Problems,'' Statistics and Computing. 25(6), 1129-1141.
@@ -61,10 +61,10 @@ cv_gl <- cv.gglasso(X, y, group=groups, loss="ls", nfolds=3)
 ```
 - Visualizing group lasso
 ```
-source("PieBW_gglasso.R")
+source("MP_gLasso.R")
 
-PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "max")
-PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "mean")
+MP_gLasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "max")
+MP_gLasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.type = "mean")
 ```
 ![SortType_GroupMaximum](https://user-images.githubusercontent.com/54830606/193396119-1c58afea-2fd1-4b80-b066-483e4b6d673a.png)
 ![diagram](https://user-images.githubusercontent.com/54830606/193396215-95353937-8ca4-4f62-bf3d-27ad7b8d3828.png)
@@ -73,7 +73,7 @@ PieBW_gglasso(cv_object = cv_gl, group = groups_name, lambda.type = "min", sort.
   + group : group name, character or integer.
   + lambda.type : selection of optimal lambda value. if lambda.type=”min”, then select 
                  lambda vaule which gives minimum loss for model. if lambda.type=”1se”, then select
-                 lambda vaule which gives minimum loss in one stadard error range.
+                 maximum lambda vaule which gives loss within 1se range from mimum loss.  
   + sort.type : selection of sort type for group importance. if sort.type=”min”, then group
                sorted by absolute average of coefficients in each group. if sort.type=”max”, then
                group sorted by absolute average of coefficients in each group.
